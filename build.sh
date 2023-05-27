@@ -1,17 +1,37 @@
 #!/bin/sh -eu
 
-make ${MAKE_OPTS:-} -C kernel kernel.elf
+exe() {
+    echo "$@"
+    "$@"
+}
 
-for MK in $(ls apps/*/Makefile)
-do
-  APP_DIR=$(dirname $MK)
-  APP=$(basename $APP_DIR)
-  make ${MAKE_OPTS:-} -C $APP_DIR $APP
-done
+echo "==========================================="
+echo "Preparing build environment."
+echo "==========================================="
+IIDFILE=./docker-image-id
+exe docker build --iidfile="${IIDFILE}" --tag stdlib-builder .
+IID=$(cat ${IIDFILE})
+exe rm ${IIDFILE}
 
-DISK_IMG=./disk.img MIKANOS_DIR=$PWD $HOME/osbook/devenv/make_mikanos_image.sh
+echo "==========================================="
+echo "Building standard libraries."
+echo "==========================================="
+CIDFILE=./docker-container-id
+exe docker run --cidfile="${CIDFILE}" ${IID}
+CID=$(cat ${CIDFILE})
+exe rm ${CIDFILE}
 
-if [ "${1:-}" = "run" ]
-then
-  $HOME/osbook/devenv/run_image.sh ./disk.img
-fi
+echo "==========================================="
+echo "Copying standard libraries."
+echo "==========================================="
+DST=./target/stdlib
+mkdir -p ${DST}
+exe docker cp ${CID}:/usr/local/x86_64-elf ${DST} 
+
+SRC=/usr/local/src
+exe docker cp ${CID}:${SRC}/newlib-cygwin/COPYING.NEWLIB ${DST}/LICENSE.newlib
+exe docker cp ${CID}:${SRC}/llvm-project/libcxx/LICENSE.TXT ${DST}/LICENSE.libcxx
+exe docker cp ${CID}:${SRC}/freetype-2.10.1/docs/FTL.TXT ${DST}/LICENSE.freetype
+
+echo ""
+echo "Done. Standard libraries at ${HOME}/osbook/devenv/x86_64-elf"

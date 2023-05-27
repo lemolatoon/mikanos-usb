@@ -1,2 +1,9 @@
 .*.un~
 *.img
+
+
+# Added by cargo
+
+/target
+.cache
+docker-container-id
