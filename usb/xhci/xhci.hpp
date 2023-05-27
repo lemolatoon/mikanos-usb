@@ -25,9 +25,9 @@ namespace usb::xhci
     Ring *CommandRing() { return &cr_; }
     EventRing *PrimaryEventRing() { return &er_; }
     DoorbellRegister *DoorbellRegisterAt(uint8_t index);
-    Port PortAt(uint8_t port_num)
+    std::unique_ptr<Port> PortAt(uint8_t port_num)
     {
-      return Port{port_num, PortRegisterSets()[port_num - 1]};
+      return std::make_unique<Port>(port_num, PortRegisterSets()[port_num - 1]);
     }
     uint8_t MaxPorts() const { return max_ports_; }
     DeviceManager *DeviceManager() { return &devmgr_; }
