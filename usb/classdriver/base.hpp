@@ -9,6 +9,7 @@
 #include "error.hpp"
 #include "usb/endpoint.hpp"
 #include "usb/setupdata.hpp"
+#include <memory>
 
 namespace usb
 {
