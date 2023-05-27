@@ -169,7 +169,7 @@ namespace
     auto ep0_ctx = dev->InputContext()->EnableEndpoint(ep0_dci);
 
     auto port = xhc.PortAt(port_id);
-    InitializeSlotContext(*slot_ctx, port);
+    InitializeSlotContext(*slot_ctx, *port);
 
     InitializeEP0Context(
         *ep0_ctx, dev->AllocTransferRing(ep0_dci, 32),
@@ -227,9 +227,9 @@ namespace
     switch (port_config_phase[port_id])
     {
     case ConfigPhase::kNotConnected:
-      return ResetPort(xhc, port);
+      return ResetPort(xhc, *port);
     case ConfigPhase::kResettingPort:
-      return EnableSlot(xhc, port);
+      return EnableSlot(xhc, *port);
     default:
       return MAKE_ERROR(Error::kInvalidPhase);
     }
@@ -298,7 +298,7 @@ namespace
         if (port_config_phase[i] == ConfigPhase::kWaitingAddressed)
         {
           auto port = xhc.PortAt(i);
-          if (auto err = ResetPort(xhc, port); err)
+          if (auto err = ResetPort(xhc, *port); err)
           {
             return err;
           }
@@ -508,7 +508,7 @@ namespace usb::xhci
     auto slot_ctx = dev.InputContext()->EnableSlotContext();
     slot_ctx->bits.context_entries = 31;
     const auto port_id{dev.DeviceContext()->slot_context.bits.root_hub_port_num};
-    const int port_speed{xhc.PortAt(port_id).Speed()};
+    const int port_speed{(*xhc.PortAt(port_id)).Speed()};
     if (port_speed == 0 || port_speed > kSuperSpeedPlus)
     {
       return MAKE_ERROR(Error::kUnknownXHCISpeedID);

@@ -88,7 +88,13 @@ fn main() {
         .chain(glob("external/**/*.cpp").unwrap());
 
     let file_iter = file_iter.chain(glob("test_cpp/**/*.cpp").unwrap());
-    let file_iter = file_iter.map(|e| e.unwrap());
+    let file_iter: Vec<_> = file_iter.map(|e| e.unwrap()).collect();
     assert!(handle.join().unwrap().unwrap());
-    cc.files(file_iter).compile("usb");
+    cc.files(file_iter.clone()).compile("usb");
+
+    for file in file_iter {
+        println!("cargo:rerun-if-changed={}", file.display());
+    }
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=src/lib.rs");
 }
