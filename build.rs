@@ -8,23 +8,23 @@ fn main() {
     let cargo_home = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let cargo_home1 = cargo_home.clone();
     let handle = std::thread::spawn(move || {
-        let generated_lib_path = std::path::Path::new(&cargo_home.clone())
+        let generated_lib_path = std::path::Path::new(&cargo_home)
             .join("target")
             .join("stdlib")
             .join("x86_64-elf")
             .join("lib");
         if !generated_lib_path.exists() {
             // check cache
-            if std::path::Path::new(&cargo_home.clone())
+            if std::path::Path::new(&cargo_home)
                 .join(".cache")
                 .join("stdlib")
                 .exists()
             {
                 let copy_options = CopyOptions::new().overwrite(true);
-                let to = std::path::Path::new(&cargo_home.clone()).join("target");
+                let to = std::path::Path::new(&cargo_home).join("target");
                 std::fs::create_dir_all(&to)?;
                 fs_extra::dir::copy(
-                    std::path::Path::new(&cargo_home.clone())
+                    std::path::Path::new(&cargo_home)
                         .join(".cache")
                         .join("stdlib"),
                     to,
@@ -35,7 +35,7 @@ fn main() {
             }
             // delete ./docker-container-id if exists
             let docker_container_id_path =
-                std::path::Path::new(&cargo_home.clone()).join("docker-container-id");
+                std::path::Path::new(&cargo_home).join("docker-container-id");
             if docker_container_id_path.exists() {
                 std::fs::remove_file(docker_container_id_path)?;
             }
@@ -59,10 +59,10 @@ fn main() {
                 std::os::unix::fs::symlink(path, renamed)?;
             }
             // cache
-            let from = std::path::Path::new(&cargo_home.clone())
+            let from = std::path::Path::new(&cargo_home)
                 .join("target")
                 .join("stdlib");
-            let to = std::path::Path::new(&cargo_home.clone()).join(".cache");
+            let to = std::path::Path::new(&cargo_home).join(".cache");
             std::fs::create_dir_all(&to)?;
             println!("copying {:?} to {:?}", from, to);
             let copy_options = CopyOptions::new().overwrite(true);
