@@ -1,3 +1,4 @@
+#![cfg_attr(not(test), no_std)]
 use core::sync::atomic::AtomicUsize;
 use cxx::private::c_char;
 
