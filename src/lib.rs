@@ -26,7 +26,7 @@ pub mod ffi {
         type Port;
         type DeviceManager;
         // class Controller
-        fn new_controller() -> UniquePtr<Controller>;
+        fn new_controller(mmio_base: usize) -> UniquePtr<Controller>;
         fn Initialize(self: Pin<&mut Controller>) -> UniquePtr<Error>;
         fn Run(self: Pin<&mut Controller>) -> UniquePtr<Error>;
         fn CommandRing(self: Pin<&mut Controller>) -> *mut Ring;
